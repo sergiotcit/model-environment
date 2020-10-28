@@ -2,7 +2,12 @@ import pluralize from 'pluralize';
 import { firstLetterLowerCase } from './helpers';
 
 export default class Searcher {
-  constructor(db, name, Model, environment) {
+  db: any;
+  name: any;
+  Model: any;
+  environment: any;
+
+  constructor(db: any, name: any, Model: any, environment: any) {
     this.db = db;
     this.name = name;
     this.Model = Model;
@@ -16,7 +21,7 @@ export default class Searcher {
     return pluralize(firstLetterLowerCase(this.name));
   }
 
-  findBy(prop, value) {
+  findBy(prop: any, value: any) {
     let classObjects = this.getClassObjects();
     let foundObject = null;
 
@@ -29,7 +34,7 @@ export default class Searcher {
     return foundObject;
   }
 
-  getById(id) {
+  getById(id: any) {
     let modelObject = null;
     const modelPluralizedName = this.getClassPluralizedName();
     const modelObjects = this.db.objects[modelPluralizedName];
@@ -45,7 +50,7 @@ export default class Searcher {
   }
 
   all() {
-    const objects = [];
+    const objects: any[] = [];
     const classObjects = this.getClassObjects();
 
     Object.keys(classObjects).forEach((id) => {
@@ -55,7 +60,7 @@ export default class Searcher {
     return objects;
   }
 
-  findAllBy(prop, value) {
+  findAllBy(prop: any, value: any) {
     const classObjects = this.getClassObjects();
     const objects = [];
     for (const objectId in classObjects) {
@@ -67,7 +72,7 @@ export default class Searcher {
     return objects;
   }
 
-  createModelInstance(data) {
+  createModelInstance(data: any) {
     const object = new this.Model(data);
     object.env = () => this.environment;
     return object;

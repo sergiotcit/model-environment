@@ -1,20 +1,20 @@
 import pluralize from 'pluralize';
 import Searcher from './Searcher';
-import {firstLetterLowerCase, isFunction} from './helpers';
+import { firstLetterLowerCase, isFunction } from './helpers';
 
-export default function Environment(db, _Models) {
+export default function Environment(this: any, db: any, _Models: any) {
   const Models = _Models;
-  const environment = {};
+  const environment: any = {};
 
   for (const modelName in Models) {
     const Model = Models[modelName];
     environment[modelName] = new Searcher(db, modelName, Model, environment);
   }
 
-  this.parseDB = function() {
+  this.parseDB = function () {
     // TCT: TODO paseDB should return a searcher, which expose Models with its finder methods in order to find particular instances, parseing the whole DB is not efficient as other objects not used in the entry point won't be used
-    const modelObjects = {};
-    const modelObjectsDict = {};
+    const modelObjects: any = {};
+    const modelObjectsDict: any = {};
     const objects = db.objects;
 
     for (const modelName in Models) {
