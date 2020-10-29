@@ -1,8 +1,9 @@
 {
   "name": "model-environment-ts",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Creates an environment that let you define relationships between objects when receiving data from normalized APIs",
-  "main": "index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -34,7 +35,6 @@
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
-    "@types/pluralize": "0.0.29",
     "babel-loader": "^8.1.0",
     "path": "^0.12.7",
     "ts-loader": "^8.0.7",

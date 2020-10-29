@@ -1,45 +1,62 @@
-import pluralize from 'pluralize';
-import Searcher from './Searcher';
-import { firstLetterLowerCase, isFunction } from './helpers';
+import { Repository } from './Repository';
+import { firstLetterLowerCase } from './helpers';
+import { DataSource } from './DataSource';
+import { ModelSource } from './ModelSource';
+import { QueryModel } from './QueryModel';
+const pluralize = require('pluralize');
 
-export default function Environment(this: any, db: any, _Models: any) {
-  const Models = _Models;
-  const environment: any = {};
+export interface RepositoryCollection {
+  [key: string]: Repository
+}
 
-  for (const modelName in Models) {
-    const Model = Models[modelName];
-    environment[modelName] = new Searcher(db, modelName, Model, environment);
+interface ModelCollection {
+  [key: string]: QueryModel
+}
+
+export class Environment {
+  data: DataSource = { objects: {} };
+  models: ModelSource = {};
+  environment: RepositoryCollection = {};
+  objects: ModelCollection = {};
+
+  constructor(data: DataSource, models: ModelSource) {
+    this.data = data;
+    this.models = models;
+    this.environment = {};
+
+    this.initializeEnvironment();
+    this.initializeObjects();
   }
 
-  this.parseDB = function () {
-    // TCT: TODO paseDB should return a searcher, which expose Models with its finder methods in order to find particular instances, parseing the whole DB is not efficient as other objects not used in the entry point won't be used
+  initializeEnvironment = () => {
+    for (const modelName in this.models) {
+      const modelClass = this.models[modelName];
+      this.environment[modelName] = new Repository(this.data, modelName, modelClass, this.environment);
+    }
+  }
+
+  initializeObjects = () => {
     const modelObjects: any = {};
-    const modelObjectsDict: any = {};
-    const objects = db.objects;
+    const modelNames: any = {};
 
-    for (const modelName in Models) {
-      // TCT: See if we can inject the model name here, as it is an object key, minification doesn't mangle the name
-      // Models[modelName].modelEnviornmentName = () => modelName;
+    for (const modelName in this.models) {
       const pluralizedModelName = pluralize(firstLetterLowerCase(modelName));
-
+      // We initialize the dictionaries
       modelObjects[pluralizedModelName] = {};
-      modelObjectsDict[pluralizedModelName] = modelName;
+      modelNames[pluralizedModelName] = modelName;
     }
 
-    Object.keys(objects).forEach((classKey) => {
-      const rows = objects[classKey];
-
-      Object.keys(rows).forEach((idKey) => {
-        if (Models[modelObjectsDict[classKey]]) {
-          modelObjects[classKey][idKey] = new Models[modelObjectsDict[classKey]](objects[classKey][idKey]);
-          modelObjects[classKey][idKey].env = () => environment;
+    Object.keys(this.data.objects).forEach(objectName => {
+      const members = this.data.objects[objectName];
+      Object.keys(members).forEach((memberName) => {
+        if (this.models[modelNames[objectName]]) {
+          modelObjects[objectName][memberName] = new this.models[modelNames[objectName]](this.objects[objectName][memberName]);
+          modelObjects[objectName][memberName].env = () => this.environment;
         } else {
-          console.log('Remember to add ' + classKey + ' To your models');
+          console.log('Remember to add ' + objectName + ' To your models');
         }
       });
     });
-    return {
-      objects: modelObjects
-    };
-  };
+    this.objects = modelObjects;
+  }
 }

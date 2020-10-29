@@ -5,10 +5,10 @@
         "target": "ES5",
         "allowJs": true,
         "moduleResolution": "Node",
-        "allowSyntheticDefaultImports": true,
         "strict": true,
         "declaration": true,
         "outDir": "./lib",
+        "esModuleInterop": true
     },
     "include": [
         "src"

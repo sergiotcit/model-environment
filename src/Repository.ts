@@ -1,27 +1,31 @@
-import pluralize from 'pluralize';
+import { DataSource } from './DataSource';
+import { RepositoryCollection } from './Environment';
 import { firstLetterLowerCase } from './helpers';
+import { ModelType } from './ModelSource';
+const pluralize = require('pluralize');
 
-export default class Searcher {
-  db: any;
-  name: any;
-  Model: any;
-  environment: any;
+export class Repository {
+  data: DataSource;
+  name: string;
+  model: ModelType;
+  environment: RepositoryCollection;
 
-  constructor(db: any, name: any, Model: any, environment: any) {
-    this.db = db;
+  constructor(data: DataSource, name: string, model: any, environment: any) {
+    this.data = data;
     this.name = name;
-    this.Model = Model;
+    this.model = model;
     this.environment = environment;
   }
+
   getClassObjects() {
-    return this.db.objects[this.getClassPluralizedName()];
+    return this.data.objects[this.getClassPluralizedName()];
   }
 
   getClassPluralizedName() {
     return pluralize(firstLetterLowerCase(this.name));
   }
 
-  findBy(prop: any, value: any) {
+  findBy(prop: string, value: any) {
     let classObjects = this.getClassObjects();
     let foundObject = null;
 
@@ -37,7 +41,7 @@ export default class Searcher {
   getById(id: any) {
     let modelObject = null;
     const modelPluralizedName = this.getClassPluralizedName();
-    const modelObjects = this.db.objects[modelPluralizedName];
+    const modelObjects = this.data.objects[modelPluralizedName];
     if (modelObjects) {
       const object = modelObjects[id];
       if (object) {
@@ -60,7 +64,7 @@ export default class Searcher {
     return objects;
   }
 
-  findAllBy(prop: any, value: any) {
+  findAllBy(prop: string, value: any) {
     const classObjects = this.getClassObjects();
     const objects = [];
     for (const objectId in classObjects) {
@@ -73,7 +77,7 @@ export default class Searcher {
   }
 
   createModelInstance(data: any) {
-    const object = new this.Model(data);
+    const object = new this.model(data);
     object.env = () => this.environment;
     return object;
   }
